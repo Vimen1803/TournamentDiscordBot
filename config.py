@@ -11,3 +11,5 @@ ERROR_CHANNEL: int = 0
 LOG_CHANNEL: int = 0
 BUG_CHANNEL: int = 0
 
+#DOCUMENTACION
+DOC_URL: str = ""
