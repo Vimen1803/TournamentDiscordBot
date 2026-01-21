@@ -183,8 +183,8 @@ class Tourney(commands.Cog):
             await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos debe ser múltiplo de 2.", discord.Color.red(), author=ctx.author))
             return
         
-        if max_teams > 32 or max_teams < 2:
-            await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos es 32 y el mínimo es 2.", discord.Color.red(), author=ctx.author))
+        if max_teams > 64 or max_teams < 2:
+            await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos es 64 y el mínimo es 2.", discord.Color.red(), author=ctx.author))
             return
 
         # Imagen
