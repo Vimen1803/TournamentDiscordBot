@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import uuid
 import datetime
@@ -6,7 +6,7 @@ import random
 import io
 from utils.db import DBManager, Tournament, Match
 from utils.visual import generate_bracket_image
-from config import PREFIX, BUG_CHANNEL
+from config import PREFIX, BUG_CHANNEL, BOT_LINK
 
 class Tourney(commands.Cog):
     def __init__(self, bot):
@@ -86,9 +86,6 @@ class Tourney(commands.Cog):
             return True # No restricción si no está configurado
             
         if ctx.channel.id not in allowed_channels:
-             # Revisa si el usuario es admin, quizás los admins pueden ejecutar en cualquier canal?
-             # Requisito de usuario: "bot solo leerÃ¡ comandos de los canales..." más estricto.
-             # Pero vamos a revisar. Suponiendo estricto.
             return False
         return True
 
@@ -96,7 +93,7 @@ class Tourney(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=self.get_embed("Error de Argumentos", f"Faltan argumentos para ejecutar el comando.\nUso: `{PREFIX}{ctx.command.qualified_name} {ctx.command.signature}`", discord.Color.red(), author=ctx.author))
         elif isinstance(error, commands.BadArgument):
-             await ctx.send(embed=self.get_embed("Error de Argumentos", f"Argumento invÃ¡lido.\nUso: `{PREFIX}{ctx.command.qualified_name} {ctx.command.signature}`", discord.Color.red(), author=ctx.author))
+             await ctx.send(embed=self.get_embed("Error de Argumentos", f"Argumento inválido.\nUso: `{PREFIX}{ctx.command.qualified_name} {ctx.command.signature}`", discord.Color.red(), author=ctx.author))
         else:
             # Propaga otros errores o maneja ellos
             # mantener el comportamiento por defecto para otros
@@ -109,8 +106,7 @@ class Tourney(commands.Cog):
 
     @tourney.command(name="link")
     async def invite_link(self, ctx):
-        l = "https://discord.com/oauth2/authorize?client_id=1448450835213189191"
-        await ctx.send(embed=self.get_embed("Invitación del Bot", f"[Haz click aquí para invitarme]({l})", author=ctx.author))
+        await ctx.send(embed=self.get_embed("Invitación del Bot", f"[Haz click aquí para invitarme]({BOT_LINK})", author=ctx.author))
 
     @tourney.command(name="help")
     async def tourney_help(self, ctx):
