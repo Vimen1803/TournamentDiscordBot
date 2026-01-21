@@ -11,6 +11,7 @@
   <p align="center">
     <img src="https://img.shields.io/badge/status-active-brightgreen?style=flat-square" alt="Status">
     <img src="https://img.shields.io/badge/made%20with-python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Made with Python">
+    <a href="http://tourneydoc.victormenjon.es"><img src="https://img.shields.io/badge/docs-tourneydoc.victormenjon.es-blue?style=flat-square&logo=read-the-docs&logoColor=white" alt="Documentation"></a>
   </p>
 </div>
 
