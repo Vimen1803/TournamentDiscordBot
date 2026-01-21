@@ -108,6 +108,10 @@ class Tourney(commands.Cog):
     async def invite_link(self, ctx):
         await ctx.send(embed=self.get_embed("Invitación del Bot", f"[Haz click aquí para invitarme]({BOT_LINK})", author=ctx.author))
 
+    @tourney.command(name="doc")
+    async def doc_link(self, ctx):
+        await ctx.send(embed=self.get_embed("Documentación del Bot", f"[Haz click aquí para ver la documentación]({DOC_URL})", author=ctx.author))
+
     @tourney.command(name="help")
     async def tourney_help(self, ctx):
         # Implementación de paginador para ayuda
@@ -119,6 +123,7 @@ class Tourney(commands.Cog):
         embed_user.add_field(name=f"{PREFIX}tourney team <id_equipo>", value="Muestra info detallada de un equipo.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney historial", value="Muestra torneos pasados.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney link", value="Enlace de invitación del bot.", inline=False)
+        embed_user.add_field(name=f"{PREFIX}tourney doc", value="Documentación del bot.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney bug <descripción del bug>", value="Reporta un bug.", inline=False)
 
         embed_admin = self.get_embed("Ayuda - Comandos de Admin (Página 2/2)", "", author=ctx.author)
