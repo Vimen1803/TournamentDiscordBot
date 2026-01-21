@@ -986,6 +986,10 @@ class Tourney(commands.Cog):
         
         tourney_id = active_tourney['id']
 
+        if name.startswith("<@") and name.endswith(">"):
+             await ctx.send(embed=self.get_embed("Error de Formato", f"Parece que has introducido una mención como nombre de equipo.\nUso correcto: `{PREFIX}tourney register <NombreEquipo> <@Miembros...>`", discord.Color.red(), author=ctx.author))
+             return
+
         if active_tourney['status'] != "open":
              await ctx.send(embed=self.get_embed("Error", "El torneo no está abierto para registros.", discord.Color.red(), author=ctx.author))
              return
@@ -1009,7 +1013,7 @@ class Tourney(commands.Cog):
         max_m = active_tourney.get('max_members', 5)
         
         if not (min_m <= len(all_members) <= max_m):
-             await ctx.send(embed=self.get_embed("Error", f"El equipo debe tener entre {min_m} y {max_m} miembros (incluyendo al líder).", discord.Color.red(), author=ctx.author))
+             await ctx.send(embed=self.get_embed("Error", f"El equipo debe tener entre {min_m} y {max_m} miembros (incluyendo al líder).\nSe encontraron: **{len(all_members)}** (Recuerda que el primer argumento es el nombre del equipo).", discord.Color.red(), author=ctx.author))
              return
              
         # Valida que el torneo no tenga el maximo de equipos
@@ -1049,6 +1053,12 @@ class Tourney(commands.Cog):
                     view=confirm_view
                 )
                 msgs_sent += 1
+                await self.send_log(
+                    ctx.guild, tourney_id,
+                    "📩 Invitación Enviada (DM)",
+                    f"**Destinatario:** {member.mention}\n**Equipo:** {name}\n**Torneo:** {active_tourney['name']}",
+                    discord.Color(0xFFC0CB)
+                )
             except discord.Forbidden:
                 await ctx.send(f"No pude enviar MD a {member.mention}. Asegúrate de que tengan los MDs abiertos.")
                 del self.pending_teams[pending_id]
@@ -1073,6 +1083,10 @@ class Tourney(commands.Cog):
         }
         await DBManager.create_team(new_team)
         
+        # Obtener guild para logs
+        tourney = await DBManager.get_tournament(data['tourney_id'])
+        guild = self.bot.get_guild(tourney['guild_id']) if tourney else None
+
         # Notifica a todos los miembros
         for uid in data['members']:
             user = self.bot.get_user(uid)
@@ -1089,22 +1103,26 @@ class Tourney(commands.Cog):
                     members_mentions = "\n".join([f"<@{m}>" for m in data['members']])
                     embed.add_field(name="Miembros", value=members_mentions)
                     await user.send(embed=embed)
+                    
+                    if guild:
+                        await self.send_log(
+                            guild, data['tourney_id'],
+                            "✅ Confirmación de Equipo (DM)",
+                            f"**Destinatario:** <@{uid}>\n**Equipo:** {data['name']}\n**Torneo:** {data['tourney_id']}",
+                            discord.Color(0xFFC0CB)
+                        )
                 except discord.Forbidden:
                     pass # DM cerrados
 
         # Log de creación de equipo
-        leader = self.bot.get_user(data['leader_id'])
-        for guild in self.bot.guilds:
-            tourney = await DBManager.get_tournament(data['tourney_id'])
-            if tourney and tourney['guild_id'] == guild.id:
-                members_str = ", ".join([f"<@{m}>" for m in data['members']])
-                await self.send_log(
-                    guild, data['tourney_id'],
-                    "👥 Equipo Creado",
-                    f"**{data['name']}**\n\n**Líder:** <@{data['leader_id']}>\n**Miembros:** {members_str}",
-                    discord.Color.blue()
-                )
-                break
+        if guild:
+            members_str = ", ".join([f"<@{m}>" for m in data['members']])
+            await self.send_log(
+                guild, data['tourney_id'],
+                "👥 Equipo Creado",
+                f"**{data['name']}**\n\n**Líder:** <@{data['leader_id']}>\n**Miembros:** {members_str}",
+                discord.Color.blue()
+            )
 
         del self.pending_teams[pending_id]
         
@@ -1150,6 +1168,12 @@ class Tourney(commands.Cog):
             await user.send(
                 embed=self.get_embed("Invitación", f"Te han invitado a unirte al equipo **{team['name']}** en el torneo **{active_tourney['name']}**.", author=ctx.author),
                 view=view
+            )
+            await self.send_log(
+                ctx.guild, active_tourney['id'],
+                "📩 Invitación a Unirse (DM)",
+                f"**Destinatario:** {user.mention}\n**Equipo:** {team['name']}\n**Enviado por:** {ctx.author.mention}",
+                discord.Color(0xFFC0CB)
             )
             await ctx.send(embed=self.get_embed("Invitación Enviada", f"Se ha enviado invitación a {user.mention} para unirse al equipo **{team['name']}**.", author=ctx.author))
         except:
@@ -1284,7 +1308,7 @@ class ConfirmRegistrationView(discord.ui.View):
         self.pending_id = pending_id
         self.cog = cog
 
-    @discord.ui.button(label="Aceptar", style=discord.ButtonStyle.green, emoji="âœ…")
+    @discord.ui.button(label="Aceptar", style=discord.ButtonStyle.green, emoji="✅")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if self.pending_id not in self.cog.pending_teams:
             await interaction.response.send_message("Esta invitación ha expirado o el equipo ya se formó/canceló.", ephemeral=True)
@@ -1296,7 +1320,6 @@ class ConfirmRegistrationView(discord.ui.View):
             return
 
         # Revisa si el usuario se unió a otro equipo en el meantime
-        from utils.db import DBManager
         existing = await DBManager.get_team_by_member(interaction.user.id, data['tourney_id'])
         if existing:
              await interaction.response.send_message(f"Ya perteneces al equipo **{existing['name']}**. No puedes unirte a este.", ephemeral=True)
@@ -1304,11 +1327,15 @@ class ConfirmRegistrationView(discord.ui.View):
 
         data['confirmed'].append(interaction.user.id)
         await interaction.response.send_message("Has aceptado unirte al equipo.", ephemeral=True)
-        self.stop()
         
         # Revisa si todos los miembros confirmaron
         if all(uid in data['confirmed'] for uid in data['members']):
-            await self.cog.create_team_final(self.pending_id)
+            self.stop()
+            try:
+                await self.cog.create_team_final(self.pending_id)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
 
 class ConfirmInviteView(discord.ui.View):
     def __init__(self, bot, team_id, user_id, cog):
