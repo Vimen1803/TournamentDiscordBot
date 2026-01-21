@@ -183,8 +183,8 @@ class Tourney(commands.Cog):
             await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos debe ser múltiplo de 2.", discord.Color.red(), author=ctx.author))
             return
         
-        if max_teams > 32 or max_teams < 4:
-            await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos es 32 y el mínimo es 4.", discord.Color.red(), author=ctx.author))
+        if max_teams > 32 or max_teams < 2:
+            await ctx.send(embed=self.get_embed("Error", "El número máximo de equipos es 32 y el mínimo es 2.", discord.Color.red(), author=ctx.author))
             return
 
         # Imagen
@@ -352,8 +352,8 @@ class Tourney(commands.Cog):
             fill_order.append(r)
         
         # If odd number of matches (unlikely with power of 2, but robust check)
-        if len(left_indices) > len(right_indices):
-            fill_order.append(left_indices[-1])
+        if len(right_indices) > len(left_indices):
+            fill_order.append(right_indices[-1])
             
         shuffled_teams = list(teams) # Copy
         random.shuffle(shuffled_teams)
