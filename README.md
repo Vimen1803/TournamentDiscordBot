@@ -1,13 +1,11 @@
 <div align="center">
   <div align="center">
-    <img src="image.png" alt="Tourney Bot" width="80" style="vertical-align: middle; margin-right: 15px;"/>
+    <img src="img/image.png" alt="Tourney Bot" width="80" style="vertical-align: middle; margin-right: 15px;"/>
     <h1 style="display: inline-block; vertical-align: middle; margin: 0;">Tourney Bot</h1>
   </div>
 
   <p align="center">
-    <b>Bot de Discord para gestión de torneos con sistema de brackets automáticos, equipos y registro de partidas.</b><br>
-    
-    Link de invitación del bot: https://discord.com/oauth2/authorize?client_id=1448450835213189191
+    <b>Bot de Discord para gestión de torneos con sistema de brackets automáticos, equipos y registro de partidas.</b>
   </p>
 
   <p align="center">
@@ -18,12 +16,53 @@
 
 ## Características
 
-- Creación y gestión de torneos
-- Sistema de equipos con líder y miembros
-- Generación automática de brackets visuales
-- Canales de partida automáticos
-- Sistema de logs para seguimiento
-- Historial de torneos
+<details>
+<summary><b>Creación y gestión de torneos</b></summary>
+<br>
+Crea torneos personalizados definiendo fecha, hora y límites de participantes.
+<br><br>
+<img src="img/torneoCreado.png" alt="Creación de Torneo" width="500"/>
+</details>
+
+<details>
+<summary><b>Sistema de equipos con líder y miembros</b></summary>
+<br>
+Los usuarios pueden registrar sus propios equipos, invitar miembros y gestionar su participación.
+<br><br>
+<img src="img/teams.png" alt="Sistema de Equipos" width="500"/>
+</details>
+
+<details>
+<summary><b>Generación automática de brackets visuales</b></summary>
+<br>
+El bot genera automáticamente una imagen del bracket del torneo que se actualiza ronda tras ronda.
+<br><br>
+<img src="img/bracket.png" alt="Bracket Visual" width="500"/>
+</details>
+
+<details>
+<summary><b>Canales de partida automáticos</b></summary>
+<br>
+Se crean canales privados automáticamente para cada enfrentamiento, dando permisos solo a los equipos involucrados.
+<br><br>
+<img src="img/match.png" alt="Canales de Partida" width="500"/>
+</details>
+
+<details>
+<summary><b>Sistema de logs para seguimiento</b></summary>
+<br>
+Registro detallado de todas las acciones importantes del torneo en un canal dedicado.
+<br><br>
+<img src="img/logs.png" alt="Sistema de Logs" width="500"/>
+</details>
+
+<details>
+<summary><b>Historial de torneos</b></summary>
+<br>
+Consulta el historial de torneos pasados, ganadores y participantes.
+<br><br>
+<img src="img/historial.png" alt="Historial" width="500"/>
+</details>
 
 ---
 
@@ -104,6 +143,7 @@ Si los logs están habilitados (`tourney set logs`), el bot enviará notificacio
 | 🗑️ Torneo Eliminado  | 🟠 Naranja |
 | 📊 Resumen de Ronda  | 🟣 Morado  |
 | 🐛 Bug Reportado     | 🔴 Rojo    |
+| 📬 MD enviado        | 🟪 Rosa    |
 
 ---
 
@@ -183,5 +223,3 @@ Desarrollado con ❤️ para facilitar la gestión de torneos
 _v1.3.0 | Enero 2026_
 
 </div>
-
-
