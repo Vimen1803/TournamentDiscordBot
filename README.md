@@ -6,6 +6,7 @@
 
   <p align="center">
     <b>Bot de Discord para gestión de torneos con sistema de brackets automáticos, equipos y registro de partidas.</b>
+    Link de invitación del bot: https://discord.com/oauth2/authorize?client_id=1448450835213189191
   </p>
 
   <p align="center">
@@ -181,3 +182,4 @@ Desarrollado con ❤️ para facilitar la gestión de torneos
 _v1.3.0 | Enero 2026_
 
 </div>
+
