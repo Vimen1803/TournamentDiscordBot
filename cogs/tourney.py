@@ -6,7 +6,13 @@ import random
 import io
 from utils.db import DBManager, Tournament, Match
 from utils.visual import generate_bracket_image
-from config import PREFIX, BUG_CHANNEL, BOT_LINK, DOC_URL
+from config import PREFIX, BUG_CHANNEL 
+
+try:
+    from config import BOT_LINK, DOC_URL
+except ImportError:
+    BOT_LINK = None
+    DOC_URL = None
 
 class Tourney(commands.Cog):
     def __init__(self, bot):
@@ -106,16 +112,25 @@ class Tourney(commands.Cog):
 
     @tourney.command(name="link")
     async def invite_link(self, ctx):
+        if not BOT_LINK:
+            await ctx.send(embed=self.get_embed("Invitación del Bot", "No se ha configurado el enlace de invitación del bot.", author=ctx.author))
+            return
         await ctx.send(embed=self.get_embed("Invitación del Bot", f"[Haz click aquí para invitarme]({BOT_LINK})", author=ctx.author))
 
     @tourney.command(name="doc")
     async def doc_link(self, ctx):
+        if not DOC_URL:
+            await ctx.send(embed=self.get_embed("Documentación del Bot", "No se ha configurado la documentación del bot.", author=ctx.author))
+            return
         await ctx.send(embed=self.get_embed("Documentación del Bot", f"[Haz click aquí para ver la documentación]({DOC_URL})", author=ctx.author))
 
     @tourney.command(name="help")
     async def tourney_help(self, ctx):
         # Implementación de paginador para ayuda
-        embed_user = self.get_embed("Ayuda - Comandos de Usuario (Página 1/2)", f"[**Documentación Completa del Bot**]({DOC_URL})", author=ctx.author)
+        if DOC_URL:
+            embed_user = self.get_embed("Ayuda - Comandos de Usuario (Página 1/2)", f"[**Documentación Completa del Bot**]({DOC_URL})", author=ctx.author)
+        else:
+            embed_user = self.get_embed("Ayuda - Comandos de Usuario (Página 1/2)", "", author=ctx.author)
         embed_user.add_field(name=f"\n{PREFIX}tourney register <nombre_equipo> [@miembros...]", value="Registra un equipo en el torneo activo.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney invite <@usuario>", value="Invita a un usuario a tu equipo (solo líder).", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney info [id_torneo]", value="Muestra información del torneo activo, o de uno específico por ID (incluso finalizados).", inline=False)
