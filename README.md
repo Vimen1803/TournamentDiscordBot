@@ -79,6 +79,7 @@ Consulta el historial de torneos pasados, ganadores y participantes.
 | `,tourney team <id_equipo>`                 | Muestra información detallada de un equipo             |
 | `,tourney historial`                        | Muestra torneos anteriores                             |
 | `,tourney link`                             | Enlace de invitación del bot                           |
+| `,tourney doc`                              | Enlace de documentación del bot                        |
 | `,tourney bug <descripción>`                | Reporta un bug o problema                              |
 
 ---
