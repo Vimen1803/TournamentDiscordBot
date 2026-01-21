@@ -6,7 +6,7 @@ import random
 import io
 from utils.db import DBManager, Tournament, Match
 from utils.visual import generate_bracket_image
-from config import PREFIX, BUG_CHANNEL, BOT_LINK
+from config import PREFIX, BUG_CHANNEL, BOT_LINK, DOC_URL
 
 class Tourney(commands.Cog):
     def __init__(self, bot):
@@ -111,15 +111,15 @@ class Tourney(commands.Cog):
     @tourney.command(name="help")
     async def tourney_help(self, ctx):
         # Implementación de paginador para ayuda
-        embed_user = self.get_embed("Ayuda - Comandos de Usuario (Página 1/2)", "", author=ctx.author)
-        embed_user.add_field(name=f"{PREFIX}tourney register <nombre_equipo> <@miembros...>", value="Registra un equipo en el torneo activo.", inline=False)
+        embed_user = self.get_embed("Ayuda - Comandos de Usuario (Página 1/2)", f"[**Documentación Completa del Bot**]({DOC_URL})", author=ctx.author)
+        embed_user.add_field(name=f"\n{PREFIX}tourney register <nombre_equipo> [@miembros...]", value="Registra un equipo en el torneo activo.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney invite <@usuario>", value="Invita a un usuario a tu equipo (solo líder).", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney info [id_torneo]", value="Muestra información del torneo activo, o de uno específico por ID (incluso finalizados).", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney teams [id_torneo]", value="Muestra los equipos registrados.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney team <id_equipo>", value="Muestra info detallada de un equipo.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney historial", value="Muestra torneos pasados.", inline=False)
         embed_user.add_field(name=f"{PREFIX}tourney link", value="Enlace de invitación del bot.", inline=False)
-        embed_user.add_field(name=f"{PREFIX}tourney bug [descripción del bug]", value="Reporta un bug.", inline=False)
+        embed_user.add_field(name=f"{PREFIX}tourney bug <descripción del bug>", value="Reporta un bug.", inline=False)
 
         embed_admin = self.get_embed("Ayuda - Comandos de Admin (Página 2/2)", "", author=ctx.author)
         embed_admin.add_field(name=f"{PREFIX}tourney create <args...>", value=f"Crea torneo. Uso: `Nombre | Desc | Fecha | Hora | MaxTeams | MinMiem | MaxMiem` (Adjuntar foto)", inline=False)
@@ -131,7 +131,7 @@ class Tourney(commands.Cog):
         embed_admin.add_field(name=f"{PREFIX}tourney set logs [id_canal]", value="Toggle logs ON/OFF. Con ID establece canal y activa.", inline=False)
         embed_admin.add_field(name=f"{PREFIX}tourney set winner <@miembro>", value="Define el ganador mencionando a un integrante.", inline=False)
         embed_admin.add_field(name=f"{PREFIX}tourney settings", value="Ver configuración actual.", inline=False)
-        embed_admin.add_field(name=f"{PREFIX}tourney roles add/remove <@rol>", value="Gestionar roles de admin.", inline=False)
+        embed_admin.add_field(name=f"{PREFIX}tourney roles [add/remove] <@rol>", value="Gestionar roles de admin.", inline=False)
         embed_admin.add_field(name=f"{PREFIX}tourney kick <id_torneo> <id_equipo>", value="Expulsar equipo del torneo.", inline=False)
         embed_admin.add_field(name=f"{PREFIX}tourney delete <id_torneo>", value="Elimina un torneo de la base de datos.", inline=False)
         
