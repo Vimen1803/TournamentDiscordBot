@@ -11,7 +11,6 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
     Genera una imagen de bracket con ratio 16:9 que cubre todo el espacio.
     """
     
-    # Configuración de colores
     BG_COLOR = (38, 35, 38)
     LINE_COLOR = (85, 80, 85)
     TEXT_COLOR = (220, 220, 220)
@@ -19,26 +18,21 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
     FOOTER_BG = (30, 28, 30)
     WINNER_COLOR = (100, 200, 120)
     
-    # Obtener todas las rondas
     all_rounds = tourney.get('matches', [])
     if not all_rounds:
         return create_empty_bracket()
     
-    # Obtener el ganador del torneo (si está finalizado)
     tournament_winner_id = tourney.get('winner_id')
     
-    # Crear imagen 16:9
     img = Image.new('RGB', (CANVAS_WIDTH, CANVAS_HEIGHT), BG_COLOR)
     draw = ImageDraw.Draw(img)
     
     fonts = load_fonts()
     
-    # Dimensiones fijas
     FOOTER_HEIGHT = 40
     MARGIN_X = 15
     MARGIN_Y = 10
     
-    # Área disponible para el bracket
     bracket_area_width = CANVAS_WIDTH - (MARGIN_X * 2)
     bracket_area_height = CANVAS_HEIGHT - FOOTER_HEIGHT - MARGIN_Y
     bracket_start_y = MARGIN_Y
@@ -47,7 +41,6 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
     first_round_matches = len(all_rounds[0])
     total_teams = first_round_matches * 2
     
-    # Usar bracket doble para 16+ equipos
     if total_teams >= 16:
         draw_double_bracket_fixed(draw, all_rounds, team_names, 
                                    MARGIN_X, bracket_start_y, 
@@ -59,7 +52,6 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
                                    bracket_area_width, bracket_area_height,
                                    fonts, first_round_matches, current_round, tournament_winner_id)
     
-    # Footer
     footer_y = CANVAS_HEIGHT - FOOTER_HEIGHT
     draw.rectangle([0, footer_y, CANVAS_WIDTH, CANVAS_HEIGHT], fill=FOOTER_BG)
     
@@ -72,7 +64,6 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
         text_width = bbox[2] - bbox[0]
         draw.text((CANVAS_WIDTH - text_width - 20, footer_y + 12), info_text, fill=SEED_COLOR, font=fonts['footer_small'])
     
-    # Guardar
     buf = io.BytesIO()
     img.save(buf, format='PNG', optimize=True)
     buf.seek(0)
@@ -81,26 +72,28 @@ def generate_bracket_image(tourney, current_round, team_names, server_name="", s
 
 def draw_single_bracket_fixed(draw, all_rounds, team_names, start_x, start_y, 
                                area_width, area_height, fonts, first_round_matches, current_round, tournament_winner_id=None):
-    """Dibuja un bracket simple que ocupa todo el espacio disponible"""
+    """
+    Dibuja un bracket simple que ocupa todo el espacio disponible
+    """
     
     LINE_COLOR = (85, 80, 85)
     num_rounds = len(all_rounds)
     
-    # Calcular dimensiones
     SLOT_WIDTH = min(180, (area_width - 40) // num_rounds)
     round_spacing = area_width // num_rounds
     
-    # Altura por match en primera ronda
     match_height_available = area_height / first_round_matches
     slot_height = min(28, max(18, int(match_height_available * 0.35)))
     match_gap = min(15, max(5, int(match_height_available * 0.15)))
     
     match_block_height = slot_height * 2 + match_gap
     
-    # Cache de posiciones para cada ronda
     positions_cache = {}
     
     def get_match_y(round_idx, match_idx):
+        """
+        Obtiene la posición Y de un match
+        """
         key = (round_idx, match_idx)
         if key in positions_cache:
             return positions_cache[key]
@@ -120,17 +113,13 @@ def draw_single_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
         positions_cache[key] = y
         return y
     
-    # Dibujar cada ronda
     for round_idx, round_matches in enumerate(all_rounds):
         x_pos = start_x + round_idx * round_spacing
-        # round_idx es 0-indexed, current_round es 1-indexed
-        # Solo mostrar ganadores en rondas anteriores a la actual
         is_past_round = (round_idx + 1) < current_round
         
         for match_idx, match in enumerate(round_matches):
             match_y = get_match_y(round_idx, match_idx)
             
-            # Seeds solo en primera ronda
             if round_idx == 0:
                 seed1 = match_idx * 2 + 1
                 seed2 = first_round_matches * 2 - match_idx * 2
@@ -142,7 +131,6 @@ def draw_single_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                            SLOT_WIDTH, slot_height, match_gap, fonts, seed1, seed2,
                            is_past_round=is_past_round, tournament_winner_id=tournament_winner_id)
             
-            # Conectores
             line1_y = match_y + slot_height
             line2_y = match_y + slot_height * 2 + match_gap
             center_y = (line1_y + line2_y) / 2
@@ -168,21 +156,21 @@ def draw_single_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
 
 def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                                area_width, area_height, fonts, total_teams, current_round, tournament_winner_id=None):
-    """Dibuja un bracket doble corregido"""
+    """
+    Dibuja un bracket doble corregido
+    """
     
     LINE_COLOR = (85, 80, 85)
     num_rounds = len(all_rounds)
     first_round_matches = len(all_rounds[0])
     half_first_round = first_round_matches // 2
-    
-    # Número de rondas por lado (excluyendo la final)
     rounds_per_side = 0
     temp_matches = half_first_round
+    
     while temp_matches >= 1:
         rounds_per_side += 1
         temp_matches = temp_matches // 2
     
-    # Dimensiones
     center_space = 140
     side_width = (area_width - center_space) / 2
     
@@ -194,7 +182,6 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
     match_gap = min(12, max(4, int(match_height_available * 0.12)))
     match_block_height = slot_height * 2 + match_gap
     
-    # Crear estructura de rondas separadas para cada lado
     left_rounds = []
     right_rounds = []
     final_match = None
@@ -202,17 +189,19 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
     for round_idx, round_matches in enumerate(all_rounds):
         n = len(round_matches)
         if n == 1:
-            final_match = (round_matches[0], round_idx)  # Guardar también el índice de ronda
+            final_match = (round_matches[0], round_idx)
         elif n >= 2:
             half = n // 2
             left_rounds.append((round_matches[:half], round_idx))
             right_rounds.append((round_matches[half:], round_idx))
     
-    # Cache de posiciones
     left_positions = {}
     right_positions = {}
     
     def get_left_y(round_idx, match_idx):
+        """
+        Obtiene la posición Y de un match
+        """
         key = (round_idx, match_idx)
         if key in left_positions:
             return left_positions[key]
@@ -232,6 +221,9 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
         return y
     
     def get_right_y(round_idx, match_idx):
+        """
+        Obtiene la posición Y de un match
+        """
         key = (round_idx, match_idx)
         if key in right_positions:
             return right_positions[key]
@@ -252,10 +244,8 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
     
     center_x = CANVAS_WIDTH / 2
     
-    # Dibujar lado izquierdo
     for local_round_idx, (round_matches, actual_round_idx) in enumerate(left_rounds):
         x_pos = start_x + local_round_idx * round_spacing
-        # Solo mostrar ganadores en rondas anteriores
         is_past_round = (actual_round_idx + 1) < current_round
         
         for match_idx, match in enumerate(round_matches):
@@ -272,7 +262,6 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                            SLOT_WIDTH, slot_height, match_gap, fonts, seed1, seed2,
                            is_past_round=is_past_round, tournament_winner_id=tournament_winner_id)
             
-            # Conectores
             line1_y = match_y + slot_height
             line2_y = match_y + slot_height * 2 + match_gap
             center_y = (line1_y + line2_y) / 2
@@ -295,7 +284,6 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                 draw.line([(connector_x, line2_y), (mid_x, line2_y)], fill=LINE_COLOR, width=1)
                 draw.line([(mid_x, center_y), (final_x, center_y)], fill=LINE_COLOR, width=1)
     
-    # Dibujar lado derecho
     for local_round_idx, (round_matches, actual_round_idx) in enumerate(right_rounds):
         x_pos = CANVAS_WIDTH - start_x - SLOT_WIDTH - local_round_idx * round_spacing
         is_past_round = (actual_round_idx + 1) < current_round
@@ -315,7 +303,6 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                            SLOT_WIDTH, slot_height, match_gap, fonts, seed1, seed2,
                            is_past_round=is_past_round, tournament_winner_id=tournament_winner_id)
             
-            # Conectores (hacia la izquierda)
             line1_y = match_y + slot_height
             line2_y = match_y + slot_height * 2 + match_gap
             center_y = (line1_y + line2_y) / 2
@@ -338,7 +325,6 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
                 draw.line([(connector_x, line2_y), (mid_x, line2_y)], fill=LINE_COLOR, width=1)
                 draw.line([(mid_x, center_y), (final_x, center_y)], fill=LINE_COLOR, width=1)
     
-    # Dibujar final en el centro
     if final_match:
         match, final_round_idx = final_match
         is_past_round = (final_round_idx + 1) < current_round
@@ -352,7 +338,9 @@ def draw_double_bracket_fixed(draw, all_rounds, team_names, start_x, start_y,
 
 
 def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, match_gap, fonts, seed1, seed2, is_final=False, is_past_round=False, tournament_winner_id=None):
-    """Dibuja un match individual. Muestra ganadores en verde si is_past_round=True, y al campeón en amarillo si tournament_winner_id está definido"""
+    """
+    Dibuja un match individual. Muestra ganadores en verde si is_past_round=True, y al campeón en amarillo si tournament_winner_id está definido
+    """
     
     TEXT_COLOR = (220, 220, 220)
     SEED_COLOR = (180, 180, 180)
@@ -372,13 +360,10 @@ def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, matc
     if not team2_id:
         team2_name = "BYE"
     
-    # Determinar si es el campeón del torneo (amarillo)
     is_tournament_champion1 = tournament_winner_id and team1_id == tournament_winner_id
     is_tournament_champion2 = tournament_winner_id and team2_id == tournament_winner_id
     
-    # Determinar ganadores de este match solo si es una ronda pasada
     if is_past_round and winner_id:
-        # Si ambos son BYE, el de arriba (team1) es verde
         if (team1_id == "BYE_SLOT" or not team1_id) and (team2_id == "BYE_SLOT" or not team2_id):
             is_winner1 = True
             is_winner2 = False
@@ -389,22 +374,21 @@ def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, matc
         is_winner1 = False
         is_winner2 = False
     
-    # Colores: campeón del torneo = amarillo, ganador de ronda = verde, normal = gris
     if is_tournament_champion1:
-        text1_color = FINAL_COLOR  # Amarillo para el campeón
+        text1_color = FINAL_COLOR
         seed1_color = FINAL_COLOR
     elif is_winner1:
-        text1_color = WINNER_COLOR  # Verde para ganador
+        text1_color = WINNER_COLOR
         seed1_color = WINNER_COLOR
     else:
         text1_color = TEXT_COLOR
         seed1_color = SEED_COLOR
     
     if is_tournament_champion2:
-        text2_color = FINAL_COLOR  # Amarillo para el campeón
+        text2_color = FINAL_COLOR
         seed2_color = FINAL_COLOR
     elif is_winner2:
-        text2_color = WINNER_COLOR  # Verde para ganador
+        text2_color = WINNER_COLOR
         seed2_color = WINNER_COLOR
     else:
         text2_color = TEXT_COLOR
@@ -416,7 +400,6 @@ def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, matc
     text_offset_y = max(2, (slot_height - 12) // 2)
     max_chars = max(12, int(slot_width / 7))
     
-    # Team 1
     team1_y = y
     if seed1:
         draw.text((x, team1_y + text_offset_y), str(seed1), fill=seed1_color, font=font_seed)
@@ -429,7 +412,6 @@ def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, matc
     line1_y = team1_y + slot_height
     draw.line([(x, line1_y), (x + slot_width, line1_y)], fill=LINE_COLOR, width=1)
     
-    # Team 2
     team2_y = y + slot_height + match_gap
     if seed2:
         draw.text((x, team2_y + text_offset_y), str(seed2), fill=seed2_color, font=font_seed)
@@ -444,7 +426,9 @@ def draw_match_slot(draw, match, team_names, x, y, slot_width, slot_height, matc
 
 
 def load_fonts():
-    """Carga las fuentes para el bracket"""
+    """
+    Carga las fuentes para el bracket
+    """
     try:
         return {
             'title': ImageFont.truetype("arial.ttf", 18),
@@ -468,7 +452,9 @@ def load_fonts():
 
 
 def create_empty_bracket():
-    """Crea un bracket vacío 16:9"""
+    """
+    Crea un bracket vacío 16:9
+    """
     BG_COLOR = (38, 35, 38)
     TEXT_COLOR = (220, 220, 220)
     
